@@ -16,7 +16,9 @@ limitations under the License.
 package main
 
 import (
+	"crypto/tls"
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -44,10 +46,19 @@ func init() {
 }
 
 func podMutatingServe(pod *nuwav1.Pod) {
-	certFile := "/ssl/tls.crt"
-	ceyFile := "/ssl/tls.key"
+	certFile := "/ssl/cert.pem"
+	keyFile := "/ssl/key.pem"
+
+	pair, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		panic(err)
+	}
+	serve := &http.Server {
+		Addr:        fmt.Sprintf(":%v", ":443"),
+		TLSConfig:   &tls.Config{Certificates: []tls.Certificate{pair}},
+	}
 	http.HandleFunc("/mutating-pods", pod.ServeMutatePods)
-	if err := http.ListenAndServeTLS(":443", certFile, ceyFile, nil); err != nil {
+	if err := serve.ListenAndServeTLS("",""); err != nil {
 		panic(err)
 	}
 }
