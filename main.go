@@ -54,7 +54,7 @@ func podMutatingServe(pod *nuwav1.Pod) {
 		panic(err)
 	}
 	serve := &http.Server {
-		Addr:        fmt.Sprintf(":%v", ":443"),
+		Addr:        fmt.Sprintf(":%v", "443"),
 		TLSConfig:   &tls.Config{Certificates: []tls.Certificate{pair}},
 	}
 	http.HandleFunc("/mutating-pods", pod.ServeMutatePods)
